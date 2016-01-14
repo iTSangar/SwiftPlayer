@@ -5,13 +5,25 @@
 [![License](https://img.shields.io/cocoapods/l/SwiftPlayer.svg?style=flat)](http://cocoapods.org/pods/SwiftPlayer)
 [![Platform](https://img.shields.io/cocoapods/p/SwiftPlayer.svg?style=flat)](http://cocoapods.org/pods/SwiftPlayer)
 
+## Overview
+
+SwiftPlayer is a Struct to access music player actions over [HysteriaPlayer](https://github.com/StreetVoice/HysteriaPlayer)
+
 ## Usage
 
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
+```swift
+import SwiftPlayer
+
+SwiftPlayer.play()
+```
 
 ## Requirements
 
-## Installation
+## Example Project
+
+To run the example project, clone the repo, and run `pod install` from the Example directory first.
+
+## Installation with CocoaPods
 
 SwiftPlayer is available through [CocoaPods](http://cocoapods.org). To install
 it, simply add the following line to your Podfile:
@@ -22,7 +34,7 @@ pod "SwiftPlayer"
 
 ## Author
 
-iTSangar, itsangardev@gmail.com
+iTSangarDEV
 
 ## License
 

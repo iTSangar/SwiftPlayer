@@ -1,0 +1,6 @@
+framework module SwiftPlayer {
+  umbrella header "SwiftPlayer-umbrella.h"
+
+  export *
+  module * { export * }
+}
