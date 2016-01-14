@@ -1,0 +1,14 @@
+PODS:
+  - SwiftPlayer (0.1.0)
+
+DEPENDENCIES:
+  - SwiftPlayer (from `../`)
+
+EXTERNAL SOURCES:
+  SwiftPlayer:
+    :path: ../
+
+SPEC CHECKSUMS:
+  SwiftPlayer: bccc95abb96e5fe3b0879e27127677063a86d08e
+
+COCOAPODS: 0.39.0
