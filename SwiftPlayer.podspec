@@ -21,7 +21,6 @@ This CocoaPod provides the ability to use a stream player using swift language o
                        DESC
 
   s.homepage         = "https://github.com/iTSangarDEV/SwiftPlayer"
-  # s.screenshots     = "www.example.com/screenshots_1", "www.example.com/screenshots_2"
   s.license          = 'MIT'
   s.author           = { "iTSangar" => "itsangardev@gmail.com" }
   s.source           = { :git => "https://github.com/iTSangarDEV/SwiftPlayer.git", :tag => s.version.to_s }
