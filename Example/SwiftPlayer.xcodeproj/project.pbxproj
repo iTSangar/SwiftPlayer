@@ -15,6 +15,8 @@
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		607FACEC1AFB9204008FA782 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACEB1AFB9204008FA782 /* Tests.swift */; };
+		76C91DA71C502359002F41E6 /* PlaylistModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76C91DA61C502359002F41E6 /* PlaylistModel.swift */; };
+		76C91DA91C502683002F41E6 /* hiphop_playlist_full.json in Resources */ = {isa = PBXBuildFile; fileRef = 76C91DA81C502683002F41E6 /* hiphop_playlist_full.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -30,7 +32,7 @@
 /* Begin PBXFileReference section */
 		47C403413D89F3ABD819CFB8 /* Pods-SwiftPlayer_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftPlayer_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftPlayer_Example/Pods-SwiftPlayer_Example.release.xcconfig"; sourceTree = "<group>"; };
 		571F68F40AB21ABC01BCF2EC /* Pods-SwiftPlayer_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftPlayer_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftPlayer_Example/Pods-SwiftPlayer_Example.debug.xcconfig"; sourceTree = "<group>"; };
-		60094DDD21E13393399F4288 /* SwiftPlayer.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = SwiftPlayer.podspec; path = ../SwiftPlayer.podspec; sourceTree = "<group>"; };
+		60094DDD21E13393399F4288 /* SwiftPlayer.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = SwiftPlayer.podspec; path = ../SwiftPlayer.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		607FACD01AFB9204008FA782 /* SwiftPlayer_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftPlayer_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACD41AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACD51AFB9204008FA782 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -42,6 +44,8 @@
 		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACEB1AFB9204008FA782 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
 		74D2BBA5343035801B90E0D9 /* Pods_SwiftPlayer_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftPlayer_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		76C91DA61C502359002F41E6 /* PlaylistModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaylistModel.swift; sourceTree = "<group>"; };
+		76C91DA81C502683002F41E6 /* hiphop_playlist_full.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = hiphop_playlist_full.json; sourceTree = "<group>"; };
 		9F25325B9965898D0E18485E /* Pods-SwiftPlayer_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftPlayer_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftPlayer_Tests/Pods-SwiftPlayer_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		A0F0AF59158960E1C0050690 /* Pods-SwiftPlayer_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftPlayer_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftPlayer_Tests/Pods-SwiftPlayer_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		A68BF1C9B20F958B3B06BABD /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
@@ -104,6 +108,7 @@
 			children = (
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
 				607FACD71AFB9204008FA782 /* ViewController.swift */,
+				76C91DA61C502359002F41E6 /* PlaylistModel.swift */,
 				607FACD91AFB9204008FA782 /* Main.storyboard */,
 				607FACDC1AFB9204008FA782 /* Images.xcassets */,
 				607FACDE1AFB9204008FA782 /* LaunchScreen.xib */,
@@ -116,6 +121,7 @@
 		607FACD31AFB9204008FA782 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				76C91DA81C502683002F41E6 /* hiphop_playlist_full.json */,
 				607FACD41AFB9204008FA782 /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -246,6 +252,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				76C91DA91C502683002F41E6 /* hiphop_playlist_full.json in Resources */,
 				607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */,
 				607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */,
 				607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */,
@@ -360,6 +367,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
+				76C91DA71C502359002F41E6 /* PlaylistModel.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

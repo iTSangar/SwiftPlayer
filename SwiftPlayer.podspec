@@ -1,40 +1,21 @@
-#
-# Be sure to run `pod lib lint SwiftPlayer.podspec' to ensure this is a
-# valid spec before submitting.
-#
-# Any lines starting with a # are optional, but their use is encouraged
-# To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html
-#
-
 Pod::Spec.new do |s|
-  s.name             = "SwiftPlayer"
-  s.version          = "0.1.0"
-  s.summary          = "Swift stream music player, on top of HysteriaPlayer"
-
-# This description is used to generate tags and improve search results.
-#   * Think: What does it do? Why did you write it? What is the focus?
-#   * Try to keep it short, snappy and to the point.
-#   * Write the description between the DESC delimiters below.
-#   * Finally, don't worry about the indent, CocoaPods strips it!  
+  s.name             = 'SwiftPlayer'
+  s.version          = '0.2.0'
+  s.summary          = 'Swift stream music player, on top of HysteriaPlayer'
   s.description      = <<-DESC
 This CocoaPod provides the ability to use a stream player using swift language over an abstraction of HysteriaPlayer framework.
                        DESC
 
-  s.homepage         = "https://github.com/iTSangarDEV/SwiftPlayer"
+  s.homepage         = 'https://github.com/iTSangarDEV/SwiftPlayer'
   s.license          = 'MIT'
-  s.author           = { "iTSangar" => "itsangardev@gmail.com" }
-  s.source           = { :git => "https://github.com/iTSangarDEV/SwiftPlayer.git", :tag => s.version.to_s }
-  # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
+  s.author           = { 'iTSangar' => 'itsangardev@gmail.com' }
+  s.source           = { :git => 'https://github.com/iTSangarDEV/SwiftPlayer.git', :tag => s.version.to_s }
 
   s.platform     = :ios, '8.0'
   s.requires_arc = true
 
-  s.source_files = 'Pod/Classes/**/*'
-  s.resource_bundles = {
-    'SwiftPlayer' => ['Pod/Assets/*.png']
-  }
+  s.source_files = 'Source/**/*'
 
-  # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
-  # s.dependency 'AFNetworking', '~> 2.3'
+  s.dependency 'HysteriaPlayer', '~> 2.1'
 end
