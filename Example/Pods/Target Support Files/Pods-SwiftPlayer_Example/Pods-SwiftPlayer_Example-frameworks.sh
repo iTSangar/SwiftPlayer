@@ -84,8 +84,16 @@ strip_invalid_archs() {
 
 
 if [[ "$CONFIGURATION" == "Debug" ]]; then
+  install_framework "Pods-SwiftPlayer_Example/Alamofire.framework"
+  install_framework "Pods-SwiftPlayer_Example/AlamofireImage.framework"
+  install_framework "Pods-SwiftPlayer_Example/HysteriaPlayer.framework"
+  install_framework "Pods-SwiftPlayer_Example/ObjectMapper.framework"
   install_framework "Pods-SwiftPlayer_Example/SwiftPlayer.framework"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
+  install_framework "Pods-SwiftPlayer_Example/Alamofire.framework"
+  install_framework "Pods-SwiftPlayer_Example/AlamofireImage.framework"
+  install_framework "Pods-SwiftPlayer_Example/HysteriaPlayer.framework"
+  install_framework "Pods-SwiftPlayer_Example/ObjectMapper.framework"
   install_framework "Pods-SwiftPlayer_Example/SwiftPlayer.framework"
 fi
