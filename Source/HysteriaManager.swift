@@ -19,9 +19,11 @@ import HysteriaPlayer
 // MARK: - HysteriaManager
 /// Layer to interact with Hysteria instance and delegate methods.
 class HysteriaManager: NSObject {
+  
   static let sharedInstance = HysteriaManager()
-  var queue: PlaylistProtocol?
+  var queue = PlayerQueue()
   var delegate: SwiftPlayerDelegate?
+  var queueDelegate: SwiftPlayerQueueDelegate?
   lazy var hysteriaPlayer = HysteriaPlayer.sharedInstance()
   let commandCenter = MPRemoteCommandCenter.sharedCommandCenter()
   private let logs = true
@@ -36,11 +38,6 @@ class HysteriaManager: NSObject {
     hysteriaPlayer.datasource = self;
     enableCommandCenter()
   }
-  
-  func setPlaylist(playlist: PlaylistProtocol) {
-    queue = playlist
-  }
-  
 }
 
 
@@ -68,14 +65,53 @@ extension HysteriaManager {
 
 // MARK: - HysteriaManager - MPNowPlayingInfoCenter
 extension HysteriaManager {
-  private func infoCenterWithTrack(track: TrackProtocol?) {
+  
+  func updateImageInfoCenter(image: UIImage) {
+    if var dictionary = MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo {
+      dictionary[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: image)
+    }
+  }
+  
+  private func infoCenterWithTrack(track: PlayerTrack?) {
     guard let track = track else { return }
-    MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = [
-      MPMediaItemPropertyAlbumTitle: track.album.name,
-      MPMediaItemPropertyArtist: track.artist.name,
-      MPMediaItemPropertyArtwork: MPMediaItemArtwork(image: UIImage(named: "kcamp")!),
+    
+    var dictionary: [String : AnyObject] = [
+      MPMediaItemPropertyAlbumTitle: "",
+      MPMediaItemPropertyArtist: "",
       MPMediaItemPropertyPlaybackDuration: NSTimeInterval(hysteriaPlayer.getPlayingItemDurationTime()),
-      MPMediaItemPropertyTitle: track.name]
+      MPMediaItemPropertyTitle: ""]
+    
+    if let albumName = track.album?.name {
+      dictionary[MPMediaItemPropertyAlbumTitle] = albumName
+    }
+    if let artistName = track.artist?.name {
+      dictionary[MPMediaItemPropertyArtist] = artistName
+    }
+    if let name = track.name {
+      dictionary[MPMediaItemPropertyTitle] = name
+    }
+    if let image = track.image,
+      let loaded = imageFromString(image) {
+        dictionary[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: loaded)
+    }
+    
+    MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = dictionary
+  }
+  
+  private func imageFromString(imagePath: String) -> UIImage? {
+    let detectorr = try! NSDataDetector(types: NSTextCheckingType.Link.rawValue)
+    let matches = detectorr.matchesInString(imagePath, options: [], range: NSMakeRange(0, imagePath.characters.count))
+    
+    for match in matches {
+      let url = (imagePath as NSString).substringWithRange(match.range)
+      if let data = NSData(contentsOfURL: NSURL(string: url)!) {
+        return UIImage(data: data)
+      }
+    }
+    
+    let data = NSData(contentsOfFile: imagePath)
+    let image = UIImage(data: data!)
+    return image
   }
 }
 
@@ -194,7 +230,24 @@ extension HysteriaManager {
       hysteriaPlayer.seekToTime(Double(time))
     }
   }
+}
+
+
+// MARK: - Hysteria Playlist
+extension HysteriaManager {
+  func setPlaylist(playlist: [PlayerTrack]) {
+    queue.mainQueue = playlist
+  }
   
+  func addPlayNext(track: PlayerTrack) {
+    if logs {print("• player track added :track >> \(track)")}
+    queue.newNextTrack(track, nowIndex: currentIndex())
+    updateCount()
+  }
+  
+  private func addHistoryTrack(track: PlayerTrack) {
+    queue.history.append(track)
+  }
 }
 
 
@@ -204,11 +257,18 @@ extension HysteriaManager {
     hysteriaPlayer.itemsCount = hysteriaPlayerNumberOfItems()
   }
   
-  private func currentItem() -> TrackProtocol? {
+  private func currentItem() -> PlayerTrack? {
     if let index: NSNumber = hysteriaPlayer.getHysteriaIndex(hysteriaPlayer.getCurrentItem()) {
-      return queue?.tracks[Int(index)]
+      let track = queue.trackAtIndex(Int(index))
+      addHistoryTrack(track)
+      return track
     }
     return nil
+  }
+  
+  func currentIndex() -> Int {
+    let index: NSNumber = hysteriaPlayer.getHysteriaIndex(hysteriaPlayer.getCurrentItem())
+    return Int(index)
   }
   
   private func fetchAndPlayAtIndex(index: Int) {
@@ -224,13 +284,18 @@ extension HysteriaManager {
 // MARK: - HysteriaPlayerDataSource
 extension HysteriaManager: HysteriaPlayerDataSource {
   func hysteriaPlayerNumberOfItems() -> Int {
-    return queue != nil ? (queue?.tracks.count)! : 0
+    return queue.totalTracks()
   }
   
-  func hysteriaPlayerURLForItemAtIndex(index: Int, preBuffer: Bool) -> NSURL! {
-    return NSURL(string: queue!.tracks[index].url)!
+  func hysteriaPlayerAsyncSetUrlForItemAtIndex(index: Int, preBuffer: Bool) {
+    if preBuffer { return }
+    guard let track = queue.queueAtIndex(index) else {
+      next()
+      return
+    }
+    
+    hysteriaPlayer.setupPlayerItemWithUrl(NSURL(string: track.url)!, index: index)
   }
-  
 }
 
 
@@ -244,6 +309,7 @@ extension HysteriaManager: HysteriaPlayerDelegate {
   func hysteriaPlayerCurrentItemChanged(item: AVPlayerItem!) {
     if logs {print("• current item changed :item >> \(item)")}
     delegate?.playerCurrentTrackChanged(currentItem())
+    queueDelegate?.queueUpdated()
     updateCurrentItem()
   }
   

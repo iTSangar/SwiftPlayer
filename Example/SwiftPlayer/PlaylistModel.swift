@@ -11,18 +11,9 @@ import SwiftPlayer
 import ObjectMapper
 
 //MARK: - Protocol Adoption -
-struct Track: TrackProtocol {
-  var id: String
-  var name: String
-  var link: String
-  var duration: Int
-  var rank: Int
-  var url: String
-  var album: AlbumProtocol
-  var artist: ArtistProtocol
-  
-  static func localSampleData(withSize size: Int = 15) -> [TrackProtocol] {
-    var tracks = [TrackProtocol]()
+struct TrackModel {
+  static func localSampleData(withSize size: Int = 15) -> [PlayerTrack] {
+    var tracks = [PlayerTrack]()
     let url = NSBundle.mainBundle().URLForResource("hiphop_playlist_full", withExtension: "json")
     let data = NSData(contentsOfURL: url!)
     
@@ -34,9 +25,7 @@ struct Track: TrackProtocol {
         
         for (index, item) in playlist.data!.enumerate() {
           if size < index { continue }
-          let artist = Artist(id: item.artist.id, name: item.artist.name, link: item.artist.link, tracklist: item.artist.tracklist)
-          let album = Album(id: item.album.id, name: item.album.title, image: item.album.coverBig, tracklist: item.album.tracklist)
-          let track = Track(id: String(item.id), name: item.title, link: item.link, duration: item.duration, rank: item.rank, url: item.preview, album: album, artist: artist)
+          let track = PlayerTrack(url: item.preview, name: item.title, image: item.album.coverBig, album: item.album.title, artist: item.artist.name)
           tracks.append(track)
         }
       }
@@ -44,29 +33,10 @@ struct Track: TrackProtocol {
       // Handle Error
     }
     
+    
     return tracks
   }
-  
 }
-
-struct Album: AlbumProtocol {
-  var id: Int
-  var name: String
-  var image: String
-  var tracklist: String
-}
-
-struct Artist: ArtistProtocol {
-  var id: Int
-  var name: String
-  var link: String
-  var tracklist: String
-}
-
-struct Playlist: PlaylistProtocol {
-  var tracks: [TrackProtocol]
-}
-
 
 //MARK: - JSON Parser -
 struct PlaylistJSONParse: Mappable {

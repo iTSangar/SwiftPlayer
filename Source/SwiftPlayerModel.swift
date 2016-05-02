@@ -8,27 +8,26 @@
 
 import Foundation
 
-/// SwiftPlayer playlist protocol
-protocol TrackProtocol {
-  var id: String { get }
-  var url: String { get }
-  var name: String { get }
-  var album: AlbumProtocol { get }
-  var artist: ArtistProtocol { get }
-}
-
-/// SwiftPlayer playlist protocol
-protocol AlbumProtocol {
-  var name: String { get }
-  var image: String { get }
-}
-
-/// SwiftPlayer playlist protocol
-protocol ArtistProtocol {
-  var name: String { get }
-}
-
-/// SwiftPlayer playlist protocol
-protocol PlaylistProtocol {
-  var tracks: [TrackProtocol] { get set }
+public struct PlayerTrack {
+  public let url: String!
+  public let name: String?
+  public let image: String?
+  public let album: Album?
+  public let artist: Artist?
+  
+  public struct Album {
+    public let name: String?
+  }
+  
+  public struct Artist {
+    public let name: String?
+  }
+  
+  public init(url: String, name: String? = nil, image: String? = nil, album: String? = nil, artist: String? = nil) {
+    self.url = url
+    self.name = name
+    self.image = image
+    self.album = Album(name: album)
+    self.artist = Artist(name: artist)
+  }
 }

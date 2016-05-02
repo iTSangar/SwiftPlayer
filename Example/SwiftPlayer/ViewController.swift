@@ -2,7 +2,7 @@
 //  ViewController.swift
 //  SwiftPlayer
 //
-//  Created by iTSangar on 01/14/2016.
+//  Created by iTSangar on 04/07/2016.
 //  Copyright (c) 2016 iTSangar. All rights reserved.
 //
 
@@ -22,13 +22,14 @@ class ViewController: UIViewController {
   @IBOutlet var coverAlbum: UIImageView!
   @IBOutlet var coverBackground: UIImageView!
   
-  private let logs = true
+  private let logs = false
+  
+  let playlist = TrackModel.localSampleData()
   
   override func viewDidLoad() {
     super.viewDidLoad()
     prepareUI()
     
-    let playlist = Playlist(tracks: Track.localSampleData())
     SwiftPlayer.delegate(self)
     SwiftPlayer.newPlaylist(playlist).playAll()
   }
@@ -66,9 +67,18 @@ extension ViewController {
     buttonPlay.selected = isPlaying ? true : false
   }
   
-  func syncLabelsInfoWithTrack(track: TrackProtocol) {
-    labelTrack.text = track.name
-    labelOtherInfo.text = track.artist.name + " — " + track.album.name
+  func syncLabelsInfoWithTrack(track: PlayerTrack) {
+    if let name = track.name {
+      labelTrack.text = name
+    }
+    
+    if let artistName = track.artist?.name {
+      if let albumName = track.album?.name {
+        labelOtherInfo.text = artistName + " — " + albumName
+        return
+      }
+      labelOtherInfo.text = artistName
+    }
   }
   
   func updateAlbumCoverWithURL(url: String) {
@@ -110,18 +120,27 @@ extension ViewController {
     buttonShuffle.selected = SwiftPlayer.isShuffle() ? true : false
     buttonShuffle.alpha = SwiftPlayer.isShuffle() ? 1.0 : 0.33
   }
+  
+  @IBAction func unwindToPlayer(segue: UIStoryboardSegue) {}
+  
+  @IBAction func addNext() {
+    let randomIndex = Int(arc4random_uniform(UInt32(playlist.count)))
+    SwiftPlayer.addNextTrack(playlist[randomIndex])
+  }
 }
 
 extension ViewController: SwiftPlayerDelegate {
   // Update View Info with track
-  func playerCurrentTrackChanged(track: TrackProtocol?) {
+  func playerCurrentTrackChanged(track: PlayerTrack?) {
     guard let track = track else { return }
     if logs {print("••• 📻 New Track 📻")}
     if logs {print("    Song - \(track.name)")}
-    if logs {print("    Artist - \(track.artist.name)")}
-    if logs {print("    Album - \(track.album.name)")}
+    if logs {print("    Artist - \(track.artist?.name)")}
+    if logs {print("    Album - \(track.album?.name)")}
     syncLabelsInfoWithTrack(track)
-    updateAlbumCoverWithURL(track.album.image)
+    if let image = track.image {
+      updateAlbumCoverWithURL(image)
+    }
   }
   
   // Update button play
@@ -166,3 +185,4 @@ class Skuby: UISlider {
     return result
   }
 }
+

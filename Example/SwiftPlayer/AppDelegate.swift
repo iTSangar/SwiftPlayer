@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  SwiftPlayer
 //
-//  Created by iTSangar on 01/14/2016.
+//  Created by iTSangar on 04/07/2016.
 //  Copyright (c) 2016 iTSangar. All rights reserved.
 //
 
