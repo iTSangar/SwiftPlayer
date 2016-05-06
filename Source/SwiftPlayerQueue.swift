@@ -14,11 +14,11 @@ struct PlayerQueue {
   var nextQueue = [PlayerTrack]()
   var mainQueue = [PlayerTrack]() {
     didSet {
-      temporary = mainQueue
+      allTracks = mainQueue
     }
   }
   
-  private var temporary = [PlayerTrack]()
+  private var allTracks = [PlayerTrack]()
   private var tempShift = [PlayerTrack]()
   
   private var nextIndexes = [Int]()
@@ -31,32 +31,46 @@ struct PlayerQueue {
   
   ///////////////////////////////////////////////
   mutating func newNextTrack(track: PlayerTrack, nowIndex: Int) {
-    let last = nextIndexes.last
-    if last != nil && last > nowIndex {
-      nextIndexes.append(last! + 1)
-    } else {
-      nextIndexes.append(nowIndex + 1)
-    }
-    
     nextQueue.insert(track, atIndex: 0)
-    temporary.insert(track, atIndex: nowIndex + 1)
+    allTracks.insert(track, atIndex: nowIndex + 1)
   }
   
   ///////////////////////////////////////////////
   mutating func queueAtIndex(index: Int) -> PlayerTrack? {
-    if nextIndexes.contains(index) {
-      if nextPlayedIndexes.contains(index) {
+    if allTracks.contains( { $0.origin == TrackType.Next }) {
+      if allTracks[index - 1].origin == TrackType.Next {
+        allTracks.removeAtIndex(index - 1)
+        nextQueue.removeAtIndex(0)
         return nil
       }
-      nextPlayedIndexes.append(index)
-      return temporary[index]
     }
-    return temporary[index]
+
+    return allTracks[index]
+  }
+  
+  ///////////////////////////////////////////////
+  mutating func reorderQueuePrevious(nowIndex: Int, reorderHysteria: (from: Int, to: Int) -> Void) {
+    
+    var totalNext = 0
+    for nTrack in allTracks where nTrack.origin == TrackType.Next {
+      totalNext += 1
+    }
+    
+    while totalNext != 0 {
+      for (index, track) in allTracks.reverse().enumerate() {
+        if track.origin == TrackType.Next {
+          allTracks.moveItem(fromIndex: ((allTracks.count - 1) - index), toIndex: nowIndex + 1)
+          reorderHysteria(from: ((allTracks.count - 1) - index), to: nowIndex + 1)
+          totalNext -= 1
+          break
+        }
+      }
+    }
   }
   
   ///////////////////////////////////////////////
   func trackAtIndex(index: Int) -> PlayerTrack {
-    return temporary[index]
+    return allTracks[index]
   }
 
   ///////////////////////////////////////////////
@@ -65,23 +79,10 @@ struct PlayerQueue {
     
     for index in nextIndexes {
       if !nextPlayedIndexes.contains(index) {
-        notPlayed.append(temporary[index])
+        notPlayed.append(allTracks[index])
       }
     }
     return notPlayed
-  }
-  
-  ///////////////////////////////////////////////
-  mutating func mainQueueToShow() -> [PlayerTrack] {
-    tempShift = mainQueue.shift(withDistance:1)
-    return tempShift
-  }
-  
-  mutating func clearQueues() {
-    temporary = mainQueue
-    nextQueue.removeAll()
-    nextIndexes.removeAll()
-    nextPlayedIndexes.removeAll()
   }
 }
 
@@ -97,5 +98,9 @@ extension Array {
   
   mutating func shiftInPlace(withDistance distance: Index.Distance = 1) {
     self = shift(withDistance: distance)
+  }
+  
+  mutating func moveItem(fromIndex oldIndex: Index, toIndex newIndex: Index) {
+    insert(removeAtIndex(oldIndex), atIndex: newIndex)
   }
 }

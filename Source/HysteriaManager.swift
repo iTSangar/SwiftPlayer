@@ -36,6 +36,7 @@ class HysteriaManager: NSObject {
   private func initHysteriaPlayer() {
     hysteriaPlayer.delegate = self;
     hysteriaPlayer.datasource = self;
+    hysteriaPlayer.enableMemoryCached(false)
     enableCommandCenter()
   }
 }
@@ -172,6 +173,9 @@ extension HysteriaManager {
   }
 
   func previous() {
+    queue.reorderQueuePrevious(currentIndex() - 1, reorderHysteria: { indexFrom, indexTo in
+      self.hysteriaPlayer.moveItemFromIndex(indexFrom, toIndex: indexTo)
+    })
     hysteriaPlayer.playPrevious()
   }
 
@@ -239,7 +243,9 @@ extension HysteriaManager {
 
   func addPlayNext(track: PlayerTrack) {
     if logs {print("• player track added :track >> \(track)")}
-    queue.newNextTrack(track, nowIndex: currentIndex())
+    var nTrack = track
+    nTrack.origin = TrackType.Next
+    queue.newNextTrack(nTrack, nowIndex: currentIndex())
     updateCount()
   }
 
@@ -287,8 +293,10 @@ extension HysteriaManager: HysteriaPlayerDataSource {
 
   func hysteriaPlayerAsyncSetUrlForItemAtIndex(index: Int, preBuffer: Bool) {
     if preBuffer { return }
+    
     guard let track = queue.queueAtIndex(index) else {
-      next()
+      hysteriaPlayer.removeItemAtIndex(index - 1)
+      fetchAndPlayAtIndex(index - 1)
       return
     }
 

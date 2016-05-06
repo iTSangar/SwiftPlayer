@@ -8,12 +8,19 @@
 
 import Foundation
 
+enum TrackType {
+  case Normal
+  case Next
+}
+
 public struct PlayerTrack {
   public let url: String!
   public let name: String?
   public let image: String?
   public let album: Album?
   public let artist: Artist?
+  
+  var origin: TrackType! = TrackType.Normal
   
   public struct Album {
     public let name: String?

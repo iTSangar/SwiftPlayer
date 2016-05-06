@@ -18,7 +18,7 @@ enum SectionPlayer: Int {
   case Resume = 2
   
   var sections: Int {
-    return SwiftPlayer.nextTracks().count > 0 ? 3 : 2
+    return isNext ? 3 : 2
   }
   
   var rows: Int {
@@ -26,7 +26,7 @@ enum SectionPlayer: Int {
     case .NowPlaying:
       return 1
     case .Next:
-      return SwiftPlayer.nextTracks().count > 0 ? SwiftPlayer.nextTracks().count : SwiftPlayer.mainTracks().count
+      return isNext ? SwiftPlayer.nextTracks().count : SwiftPlayer.mainTracks().count
     case .Resume:
       return SwiftPlayer.mainTracks().count
     }
@@ -38,9 +38,32 @@ enum SectionPlayer: Int {
       return "  NOW PLAYING"
     case .Next:
       let songs = SwiftPlayer.nextTracks().count > 1 ? "SONGS" : "SONG"
-      return SwiftPlayer.nextTracks().count > 0 ? "  UP NEXT: \(SwiftPlayer.nextTracks().count) \(songs)" : "  UP NEXT: FROM \(albumName)"
+      return isNext ? "  UP NEXT: \(SwiftPlayer.nextTracks().count) \(songs)" : "  UP NEXT: FROM \(albumName)"
     case .Resume:
       return "  RESUME: \(albumName)"
+    }
+  }
+  
+  func value(row: Int) -> PlayerTrack {
+    switch self {
+    case .NowPlaying:
+      return SwiftPlayer.trackAtIndex(SwiftPlayer.currentTrackIndex())
+    case .Next:
+      return isNext ? SwiftPlayer.nextTracks()[row] : SwiftPlayer.mainTracks()[row]
+    case .Resume:
+      return SwiftPlayer.mainTracks()[row]
+    }
+  }
+  
+  func selected(row: Int) {
+    switch self {
+    case .NowPlaying:
+      return
+    case .Next:
+      
+      break
+    case .Resume:
+      break
     }
   }
   
@@ -52,16 +75,10 @@ enum SectionPlayer: Int {
     }
   }
   
-  func value(row: Int) -> PlayerTrack {
-    switch self {
-    case .NowPlaying:
-      return SwiftPlayer.trackAtIndex(SwiftPlayer.currentTrackIndex())
-    case .Next:
-      return SwiftPlayer.nextTracks().count > 0 ? SwiftPlayer.nextTracks()[row] : SwiftPlayer.mainTracks()[row]
-    case .Resume:
-      return SwiftPlayer.mainTracks()[row]
-    }
+  private var isNext: Bool {
+    return SwiftPlayer.nextTracks().count > 0
   }
+
 }
 
 // MARK: - ViewController
@@ -78,7 +95,6 @@ class QueueTableViewController: UITableViewController {
   
   override func didReceiveMemoryWarning() {
     super.didReceiveMemoryWarning()
-    // Dispose of any resources that can be recreated.
   }
   
   // MARK: Table view data source
@@ -108,8 +124,10 @@ class QueueTableViewController: UITableViewController {
     return cell
   }
   
+  // MARK: Table view delegate
+  
   override func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
-    if (cell.respondsToSelector(Selector("setPreservesSuperviewLayoutMargins:"))){
+    if cell.respondsToSelector(Selector("setPreservesSuperviewLayoutMargins:")) {
       cell.layoutMargins = UIEdgeInsetsZero
       cell.preservesSuperviewLayoutMargins = false
     }
@@ -119,54 +137,16 @@ class QueueTableViewController: UITableViewController {
     cell.track = self.section.value(indexPath.row)
   }
   
-  /*
-   // Override to support conditional editing of the table view.
-   override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-   // Return false if you do not want the specified item to be editable.
-   return true
-   }
-   */
-  
-  /*
-   // Override to support editing the table view.
-   override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-   if editingStyle == .Delete {
-   // Delete the row from the data source
-   tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-   } else if editingStyle == .Insert {
-   // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-   }
-   }
-   */
-  
-  /*
-   // Override to support rearranging the table view.
-   override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-   
-   }
-   */
-  
-  /*
-   // Override to support conditional rearranging of the table view.
-   override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-   // Return false if you do not want the item to be re-orderable.
-   return true
-   }
-   */
-  
-  /*
-   // MARK: - Navigation
-   
-   // In a storyboard-based application, you will often want to do a little preparation before navigation
-   override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-   // Get the new view controller using segue.destinationViewController.
-   // Pass the selected object to the new view controller.
-   }
-   */
+  override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    self.section = SectionPlayer.init(rawValue: indexPath.section)!
+    self.section.selected(indexPath.row)
+  }
   
 }
 
+
 extension QueueTableViewController: SwiftPlayerQueueDelegate {
+  
   func queueUpdated() {
     tableView.reloadData()
   }
