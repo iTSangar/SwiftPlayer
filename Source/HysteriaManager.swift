@@ -284,7 +284,7 @@ extension HysteriaManager {
   }
 
   private func reorderHysteryaQueue() -> (from: Int, to: Int) -> Void {
-    var closure: (from: Int, to: Int) -> Void = { from, to in
+    let closure: (from: Int, to: Int) -> Void = { from, to in
       self.hysteriaPlayer.moveItemFromIndex(from, toIndex: to)
     }
     return closure

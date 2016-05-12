@@ -91,7 +91,7 @@ struct PlayerQueue {
     
     allTracks.removeRange(firstFound...(indexOnQueue - 1))
     
-    for x in firstFound...(indexOnQueue - 1) {
+    for _ in firstFound...(indexOnQueue - 1) {
       nextQueue.removeAtIndex(0)
     }
     
