@@ -21,6 +21,7 @@ public struct PlayerTrack {
   public let artist: Artist?
   
   var origin: TrackType! = TrackType.Normal
+  var position: Int?
   
   public struct Album {
     public let name: String?

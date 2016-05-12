@@ -19,10 +19,6 @@ struct PlayerQueue {
   }
   
   private var allTracks = [PlayerTrack]()
-  private var tempShift = [PlayerTrack]()
-  
-  private var nextIndexes = [Int]()
-  private var nextPlayedIndexes = [Int]()
   
   ///////////////////////////////////////////////
   func totalTracks() -> Int {
@@ -36,9 +32,15 @@ struct PlayerQueue {
   }
   
   ///////////////////////////////////////////////
+  mutating func removeNextAtIndex(index: Int) {
+    allTracks.removeAtIndex(index)
+    nextQueue.removeAtIndex(0)
+  }
+  
+  ///////////////////////////////////////////////
   mutating func queueAtIndex(index: Int) -> PlayerTrack? {
-    if allTracks.contains( { $0.origin == TrackType.Next }) {
-      if allTracks[index - 1].origin == TrackType.Next {
+    if allTracks.contains({ $0.origin == TrackType.Next }) {
+      if index > 0 && allTracks[index - 1].origin == TrackType.Next {
         allTracks.removeAtIndex(index - 1)
         nextQueue.removeAtIndex(0)
         return nil
@@ -49,7 +51,56 @@ struct PlayerQueue {
   }
   
   ///////////////////////////////////////////////
+  func indexForShuffle() -> Int? {
+    for (index, track) in allTracks.enumerate() where track.origin == TrackType.Next {
+      return index
+    }
+    return nil
+  }
+
+  ///////////////////////////////////////////////
+  func indexToPlayAt(indexMain: Int) -> Int? {
+    for (index, track) in allTracks.enumerate() where track.origin == TrackType.Normal && track.position == indexMain {
+      return index
+    }
+    return nil
+  }
+  
+  ///////////////////////////////////////////////
+  mutating func indexToPlayNextAt(indexNext: Int, nowIndex: Int) -> Int? {
+    var indexOnQueue = 0
+    var firstFound = 0
+    var totalFound = 0
+    
+    for (index, track) in allTracks.enumerate() where track.origin == TrackType.Next {
+      firstFound = index
+      indexOnQueue = index + indexNext
+      break
+    }
+    
+    for i in 0..<indexOnQueue {
+      if allTracks[i].origin == TrackType.Next {
+        totalFound += 1
+      }
+    }
+    
+    if allTracks[nowIndex].origin == TrackType.Next {
+      firstFound += 1
+      indexOnQueue += 1
+    }
+    
+    allTracks.removeRange(firstFound...(indexOnQueue - 1))
+    
+    for x in firstFound...(indexOnQueue - 1) {
+      nextQueue.removeAtIndex(0)
+    }
+    
+    return indexOnQueue - totalFound
+  }
+  
+  ///////////////////////////////////////////////
   mutating func reorderQueuePrevious(nowIndex: Int, reorderHysteria: (from: Int, to: Int) -> Void) {
+    if nowIndex <= 0 { return }
     
     var totalNext = 0
     for nTrack in allTracks where nTrack.origin == TrackType.Next {
@@ -57,13 +108,11 @@ struct PlayerQueue {
     }
     
     while totalNext != 0 {
-      for (index, track) in allTracks.reverse().enumerate() {
-        if track.origin == TrackType.Next {
-          allTracks.moveItem(fromIndex: ((allTracks.count - 1) - index), toIndex: nowIndex + 1)
-          reorderHysteria(from: ((allTracks.count - 1) - index), to: nowIndex + 1)
-          totalNext -= 1
-          break
-        }
+      for (index, track) in allTracks.reverse().enumerate() where track.origin == TrackType.Next {
+        allTracks.moveItem(fromIndex: ((allTracks.count - 1) - index), toIndex: nowIndex + 1)
+        reorderHysteria(from: ((allTracks.count - 1) - index), to: nowIndex + 1)
+        totalNext -= 1
+        break
       }
     }
   }
@@ -72,23 +121,10 @@ struct PlayerQueue {
   func trackAtIndex(index: Int) -> PlayerTrack {
     return allTracks[index]
   }
-
-  ///////////////////////////////////////////////
-  func nextQueueToShow() -> [PlayerTrack] {
-    var notPlayed = [PlayerTrack]()
-    
-    for index in nextIndexes {
-      if !nextPlayedIndexes.contains(index) {
-        notPlayed.append(allTracks[index])
-      }
-    }
-    return notPlayed
-  }
 }
 
 
 extension Array {
-  
   func shift(withDistance distance: Index.Distance = 1) -> Array<Element> {
     let index = distance >= 0 ?
       startIndex.advancedBy(distance, limit: endIndex) :

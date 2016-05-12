@@ -25,9 +25,13 @@ class HysteriaManager: NSObject {
   var delegate: SwiftPlayerDelegate?
   var queueDelegate: SwiftPlayerQueueDelegate?
   lazy var hysteriaPlayer = HysteriaPlayer.sharedInstance()
-  let commandCenter = MPRemoteCommandCenter.sharedCommandCenter()
+  
+  private let commandCenter = MPRemoteCommandCenter.sharedCommandCenter()
   private let logs = true
-
+  private var isClicked = false
+  private var lastIndexClicked = -1
+  private var lastIndexShuffle = -1
+  
   private override init() {
     super.init()
     initHysteriaPlayer()
@@ -38,6 +42,7 @@ class HysteriaManager: NSObject {
     hysteriaPlayer.datasource = self;
     hysteriaPlayer.enableMemoryCached(false)
     enableCommandCenter()
+    
   }
 }
 
@@ -173,9 +178,7 @@ extension HysteriaManager {
   }
 
   func previous() {
-    queue.reorderQueuePrevious(currentIndex() - 1, reorderHysteria: { indexFrom, indexTo in
-      self.hysteriaPlayer.moveItemFromIndex(indexFrom, toIndex: indexTo)
-    })
+    queue.reorderQueuePrevious(currentIndex() - 1, reorderHysteria: reorderHysteryaQueue())
     hysteriaPlayer.playPrevious()
   }
 
@@ -238,7 +241,13 @@ extension HysteriaManager {
 // MARK: - Hysteria Playlist
 extension HysteriaManager {
   func setPlaylist(playlist: [PlayerTrack]) {
-    queue.mainQueue = playlist
+    var nPlaylist = [PlayerTrack]()
+    for (index, track) in playlist.enumerate() {
+      var nTrack = track
+      nTrack.position = index
+      nPlaylist.append(nTrack)
+    }
+    queue.mainQueue = nPlaylist
   }
 
   func addPlayNext(track: PlayerTrack) {
@@ -251,6 +260,34 @@ extension HysteriaManager {
 
   private func addHistoryTrack(track: PlayerTrack) {
     queue.history.append(track)
+  }
+  
+  func playMainAtIndex(index: Int) {
+    if let qIndex = queue.indexToPlayAt(index) {
+      if queue.nextQueue.count > 0 {
+        lastIndexClicked = currentIndex()
+      }
+      fetchAndPlayAtIndex(qIndex)
+      isClicked = true
+    }
+  }
+
+  func playNextAtIndex(index: Int) {
+    if index == 0 {
+      next()
+      return
+    }
+    if let qIndex = queue.indexToPlayNextAt(index, nowIndex: currentIndex()) {
+      updateCount()
+      fetchAndPlayAtIndex(qIndex)
+    }
+  }
+
+  private func reorderHysteryaQueue() -> (from: Int, to: Int) -> Void {
+    var closure: (from: Int, to: Int) -> Void = { from, to in
+      self.hysteriaPlayer.moveItemFromIndex(from, toIndex: to)
+    }
+    return closure
   }
 }
 
@@ -294,6 +331,29 @@ extension HysteriaManager: HysteriaPlayerDataSource {
   func hysteriaPlayerAsyncSetUrlForItemAtIndex(index: Int, preBuffer: Bool) {
     if preBuffer { return }
     
+    if logs {print("• player WANT index ººº : >> \(index)")}
+    
+    if isClicked && lastIndexClicked != -1 {
+      isClicked = false
+      fetchAndPlayAtIndex(lastIndexClicked + 1)
+      lastIndexClicked = -1
+      return
+    }
+    
+    if shuffleStatus() == true {
+      if lastIndexShuffle != -1 {
+        queue.removeNextAtIndex(lastIndexShuffle)
+        hysteriaPlayer.removeItemAtIndex(lastIndexShuffle)
+        lastIndexShuffle = -1
+      }
+      
+      if let indexShufle = queue.indexForShuffle() {
+        lastIndexShuffle = indexShufle
+        hysteriaPlayer.setupPlayerItemWithUrl(NSURL(string: queue.trackAtIndex(indexShufle).url)!, index: indexShufle)
+        return
+      }
+    }
+    
     guard let track = queue.queueAtIndex(index) else {
       hysteriaPlayer.removeItemAtIndex(index - 1)
       fetchAndPlayAtIndex(index - 1)
@@ -310,6 +370,7 @@ extension HysteriaManager: HysteriaPlayerDelegate {
 
   func hysteriaPlayerWillChangedAtIndex(index: Int) {
     if logs {print("• player will changed :atindex >> \(index)")}
+    if logs {print("• player LAST index >>>>  \(hysteriaPlayer.getLastItemIndex())")}
   }
 
   func hysteriaPlayerCurrentItemChanged(item: AVPlayerItem!) {

@@ -130,13 +130,14 @@ public struct SwiftPlayer {
     return HysteriaManager.sharedInstance.playingItemDurationTime()
   }
   
+  
+  // MARK: QUEUE
+ 
   /// Set new playlist in player
   public static func newPlaylist(playlist: [PlayerTrack]) -> SwiftPlayer.Type {
     HysteriaManager.sharedInstance.setPlaylist(playlist)
     return self
   }
-  
-  // MARK: QUEUE
   
   /// Set queue delegate
   public static func queueDelegate(delegate: SwiftPlayerQueueDelegate) {
@@ -160,7 +161,13 @@ public struct SwiftPlayer {
   
   /// Tracks without playing track in next queue
   public static func nextTracks() -> [PlayerTrack] {
-    return HysteriaManager.sharedInstance.queue.nextQueueToShow()
+    if SwiftPlayer.trackAtIndex(SwiftPlayer.currentTrackIndex()).origin == TrackType.Next {
+      var pop = HysteriaManager.sharedInstance.queue.nextQueue
+      pop.removeAtIndex(0)
+      return pop
+    }
+    
+    return HysteriaManager.sharedInstance.queue.nextQueue
   }
   
   /// All tracks by index 
@@ -171,5 +178,15 @@ public struct SwiftPlayer {
   /// Current index of playlist
   public static func currentTrackIndex() -> Int {
     return HysteriaManager.sharedInstance.currentIndex()
+  }
+  
+  /// Play music from main queue by specified index
+  public static func playMainAtIndex(index: Int) {
+    HysteriaManager.sharedInstance.playMainAtIndex(index)
+  }
+  
+  /// Play music from next queue by specified index
+  public static func playNextAtIndex(index: Int) {
+    HysteriaManager.sharedInstance.playNextAtIndex(index)
   }
 }

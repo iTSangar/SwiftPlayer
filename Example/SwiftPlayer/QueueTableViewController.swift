@@ -12,7 +12,7 @@ import AlamofireImage
 
 // MARK: - Section Enum
 
-enum SectionPlayer: Int {
+enum TrackSection: Int {
   case NowPlaying = 0
   case Next = 1
   case Resume = 2
@@ -58,11 +58,16 @@ enum SectionPlayer: Int {
   func selected(row: Int) {
     switch self {
     case .NowPlaying:
-      return
+      break
     case .Next:
-      
+      if isNext {
+        SwiftPlayer.playNextAtIndex(row)
+      } else {
+        SwiftPlayer.playMainAtIndex(row)
+      }
       break
     case .Resume:
+      SwiftPlayer.playMainAtIndex(row)
       break
     }
   }
@@ -85,7 +90,7 @@ enum SectionPlayer: Int {
 
 class QueueTableViewController: UITableViewController {
   
-  var section = SectionPlayer.NowPlaying
+  var sectionStatus = TrackSection.NowPlaying
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -100,17 +105,17 @@ class QueueTableViewController: UITableViewController {
   // MARK: Table view data source
   
   override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-    return self.section.sections
+    return sectionStatus.sections
   }
   
   override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    self.section = SectionPlayer.init(rawValue: section)!
-    return self.section.rows
+    sectionStatus = TrackSection.init(rawValue: section)!
+    return sectionStatus.rows
   }
   
   override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-    self.section = SectionPlayer.init(rawValue: section)!
-    return self.section.title
+    sectionStatus = TrackSection.init(rawValue: section)!
+    return sectionStatus.title
   }
   
   override func tableView(tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
@@ -120,8 +125,7 @@ class QueueTableViewController: UITableViewController {
   }
   
   override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-    let cell = tableView.dequeueReusableCellWithIdentifier("QueueTableViewCell", forIndexPath: indexPath) as! QueueTableViewCell
-    return cell
+    return tableView.dequeueReusableCellWithIdentifier("QueueTableViewCell", forIndexPath: indexPath) as! QueueTableViewCell
   }
   
   // MARK: Table view delegate
@@ -133,20 +137,20 @@ class QueueTableViewController: UITableViewController {
     }
     
     let cell = cell as! QueueTableViewCell
-    self.section = SectionPlayer.init(rawValue: indexPath.section)!
-    cell.track = self.section.value(indexPath.row)
+    sectionStatus = TrackSection.init(rawValue: indexPath.section)!
+    cell.track = sectionStatus.value(indexPath.row)
   }
   
   override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-    self.section = SectionPlayer.init(rawValue: indexPath.section)!
-    self.section.selected(indexPath.row)
+    tableView.deselectRowAtIndexPath(indexPath, animated: true)
+    sectionStatus = TrackSection.init(rawValue: indexPath.section)!
+    sectionStatus.selected(indexPath.row)
   }
   
 }
 
 
 extension QueueTableViewController: SwiftPlayerQueueDelegate {
-  
   func queueUpdated() {
     tableView.reloadData()
   }

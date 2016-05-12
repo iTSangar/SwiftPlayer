@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="7Z9-ms-6Rd">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="7Z9-ms-6Rd">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
@@ -87,9 +87,9 @@
                                                     <state key="normal" image="add"/>
                                                 </button>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bf6-nJ-HJE">
-                                                    <rect key="frame" x="254" y="276" width="45" height="45"/>
+                                                    <rect key="frame" x="251" y="271" width="50" height="50"/>
                                                     <inset key="contentEdgeInsets" minX="10" minY="10" maxX="10" maxY="10"/>
-                                                    <state key="normal" image="comment"/>
+                                                    <state key="normal" image="header_playlist"/>
                                                     <connections>
                                                         <action selector="addNext" destination="7Z9-ms-6Rd" eventType="touchUpInside" id="TBu-sO-dnW"/>
                                                     </connections>
@@ -325,7 +325,7 @@
     </scenes>
     <resources>
         <image name="add" width="25" height="25"/>
-        <image name="comment" width="25" height="25"/>
+        <image name="header_playlist" width="30" height="30"/>
         <image name="like" width="25" height="25"/>
         <image name="mask" width="375" height="65"/>
         <image name="next" width="40" height="40"/>
