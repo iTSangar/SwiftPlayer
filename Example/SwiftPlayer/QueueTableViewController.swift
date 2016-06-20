@@ -44,10 +44,13 @@ enum TrackSection: Int {
     }
   }
   
-  func value(row: Int) -> PlayerTrack {
+  func value(row: Int) -> PlayerTrack? {
     switch self {
     case .NowPlaying:
-      return SwiftPlayer.trackAtIndex(SwiftPlayer.currentTrackIndex())
+      if let index = SwiftPlayer.currentTrackIndex() {
+        return SwiftPlayer.trackAtIndex(index)
+      }
+      return nil
     case .Next:
       return isNext ? SwiftPlayer.nextTracks()[row] : SwiftPlayer.mainTracks()[row]
     case .Resume:

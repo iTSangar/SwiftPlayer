@@ -9,6 +9,7 @@
 import UIKit
 import SwiftPlayer
 import AlamofireImage
+import AVFoundation
 
 class ViewController: UIViewController {
   
@@ -30,6 +31,7 @@ class ViewController: UIViewController {
     super.viewDidLoad()
     prepareUI()
     
+    SwiftPlayer.logs(true)
     SwiftPlayer.delegate(self)
     SwiftPlayer.newPlaylist(playlist).playAll()
   }

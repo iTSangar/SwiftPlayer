@@ -17,21 +17,23 @@ import MediaPlayer
 import HysteriaPlayer
 
 // MARK: - HysteriaManager
-/// Layer to interact with Hysteria instance and delegate methods.
 class HysteriaManager: NSObject {
 
   static let sharedInstance = HysteriaManager()
+  lazy var hysteriaPlayer = HysteriaPlayer.sharedInstance()
+
+  var logs = true
   var queue = PlayerQueue()
   var delegate: SwiftPlayerDelegate?
+  var controller: UIViewController?
   var queueDelegate: SwiftPlayerQueueDelegate?
-  lazy var hysteriaPlayer = HysteriaPlayer.sharedInstance()
-  
+
   private let commandCenter = MPRemoteCommandCenter.sharedCommandCenter()
-  private let logs = true
   private var isClicked = false
   private var lastIndexClicked = -1
   private var lastIndexShuffle = -1
-  
+
+
   private override init() {
     super.init()
     initHysteriaPlayer()
@@ -42,7 +44,7 @@ class HysteriaManager: NSObject {
     hysteriaPlayer.datasource = self;
     hysteriaPlayer.enableMemoryCached(false)
     enableCommandCenter()
-    
+
   }
 }
 
@@ -115,9 +117,12 @@ extension HysteriaManager {
       }
     }
 
-    let data = NSData(contentsOfFile: imagePath)
-    let image = UIImage(data: data!)
-    return image
+    if let data = NSData(contentsOfFile: imagePath) {
+      let image = UIImage(data: data)
+      return image
+    }
+
+    return nil
   }
 }
 
@@ -125,25 +130,25 @@ extension HysteriaManager {
 // MARK: - HysteriaManager - Remote Control Events
 extension HysteriaManager {
   private func enableCommandCenter() {
-    commandCenter.playCommand.addTargetWithHandler({_ in
+    commandCenter.playCommand.addTargetWithHandler { _ in
       self.play()
       return MPRemoteCommandHandlerStatus.Success
-    })
+    }
 
-    commandCenter.pauseCommand.addTargetWithHandler({_ in
+    commandCenter.pauseCommand.addTargetWithHandler { _ in
       self.pause()
       return MPRemoteCommandHandlerStatus.Success
-    })
+    }
 
-    commandCenter.nextTrackCommand.addTargetWithHandler({_ in
+    commandCenter.nextTrackCommand.addTargetWithHandler { _ in
       self.next()
       return MPRemoteCommandHandlerStatus.Success
-    })
+    }
 
-    commandCenter.previousTrackCommand.addTargetWithHandler({_ in
+    commandCenter.previousTrackCommand.addTargetWithHandler { _ in
       self.previous()
       return MPRemoteCommandHandlerStatus.Success
-    })
+    }
   }
 }
 
@@ -174,12 +179,13 @@ extension HysteriaManager {
 
   func next() {
     hysteriaPlayer.playNext()
-    play()
   }
 
   func previous() {
-    queue.reorderQueuePrevious(currentIndex() - 1, reorderHysteria: reorderHysteryaQueue())
-    hysteriaPlayer.playPrevious()
+    if let index = currentIndex() {
+      queue.reorderQueuePrevious(index - 1, reorderHysteria: reorderHysteryaQueue())
+      hysteriaPlayer.playPrevious()
+    }
   }
 
   // Shuffle Methods
@@ -254,18 +260,20 @@ extension HysteriaManager {
     if logs {print("• player track added :track >> \(track)")}
     var nTrack = track
     nTrack.origin = TrackType.Next
-    queue.newNextTrack(nTrack, nowIndex: currentIndex())
-    updateCount()
+    if let index = currentIndex() {
+      queue.newNextTrack(nTrack, nowIndex: index)
+      updateCount()
+    }
   }
 
   private func addHistoryTrack(track: PlayerTrack) {
     queue.history.append(track)
   }
-  
+
   func playMainAtIndex(index: Int) {
     if let qIndex = queue.indexToPlayAt(index) {
       if queue.nextQueue.count > 0 {
-        lastIndexClicked = currentIndex()
+        lastIndexClicked = currentIndex()!
       }
       fetchAndPlayAtIndex(qIndex)
       isClicked = true
@@ -277,7 +285,7 @@ extension HysteriaManager {
       next()
       return
     }
-    if let qIndex = queue.indexToPlayNextAt(index, nowIndex: currentIndex()) {
+    if let qIndex = queue.indexToPlayNextAt(index, nowIndex: currentIndex()!) {
       updateCount()
       fetchAndPlayAtIndex(qIndex)
     }
@@ -307,9 +315,15 @@ extension HysteriaManager {
     return nil
   }
 
-  func currentIndex() -> Int {
-    let index: NSNumber = hysteriaPlayer.getHysteriaIndex(hysteriaPlayer.getCurrentItem())
-    return Int(index)
+  func currentItem() -> AVPlayerItem! {
+    return hysteriaPlayer.getCurrentItem()
+  }
+
+  func currentIndex() -> Int? {
+    if let index = hysteriaPlayer.getHysteriaIndex(hysteriaPlayer.getCurrentItem()) {
+      return Int(index)
+    }
+    return nil
   }
 
   private func fetchAndPlayAtIndex(index: Int) {
@@ -318,6 +332,10 @@ extension HysteriaManager {
 
   func playingItemDurationTime() -> Float {
     return hysteriaPlayer.getPlayingItemDurationTime()
+  }
+
+  func volumeViewFrom(view: UIView) -> MPVolumeView! {
+    return MPVolumeView(frame: view.bounds)
   }
 }
 
@@ -330,30 +348,28 @@ extension HysteriaManager: HysteriaPlayerDataSource {
 
   func hysteriaPlayerAsyncSetUrlForItemAtIndex(index: Int, preBuffer: Bool) {
     if preBuffer { return }
-    
-    if logs {print("• player WANT index ººº : >> \(index)")}
-    
+
     if isClicked && lastIndexClicked != -1 {
       isClicked = false
       fetchAndPlayAtIndex(lastIndexClicked + 1)
       lastIndexClicked = -1
       return
     }
-    
+
     if shuffleStatus() == true {
       if lastIndexShuffle != -1 {
         queue.removeNextAtIndex(lastIndexShuffle)
         hysteriaPlayer.removeItemAtIndex(lastIndexShuffle)
         lastIndexShuffle = -1
       }
-      
+
       if let indexShufle = queue.indexForShuffle() {
         lastIndexShuffle = indexShufle
         hysteriaPlayer.setupPlayerItemWithUrl(NSURL(string: queue.trackAtIndex(indexShufle).url)!, index: indexShufle)
         return
       }
     }
-    
+
     guard let track = queue.queueAtIndex(index) else {
       hysteriaPlayer.removeItemAtIndex(index - 1)
       fetchAndPlayAtIndex(index - 1)
@@ -370,7 +386,6 @@ extension HysteriaManager: HysteriaPlayerDelegate {
 
   func hysteriaPlayerWillChangedAtIndex(index: Int) {
     if logs {print("• player will changed :atindex >> \(index)")}
-    if logs {print("• player LAST index >>>>  \(hysteriaPlayer.getLastItemIndex())")}
   }
 
   func hysteriaPlayerCurrentItemChanged(item: AVPlayerItem!) {

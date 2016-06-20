@@ -2,9 +2,9 @@ PODS:
   - Alamofire (3.3.1)
   - AlamofireImage (2.4.0):
     - Alamofire (~> 3.3)
-  - HysteriaPlayer (2.1.8)
+  - HysteriaPlayer (2.1.9)
   - ObjectMapper (1.2.0)
-  - SwiftPlayer (0.3.1):
+  - SwiftPlayer (0.3.2):
     - HysteriaPlayer (~> 2.1)
 
 DEPENDENCIES:
@@ -19,8 +19,8 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Alamofire: 369bc67b6f5ac33ded3648d7bd21c5bfb91c2ecc
   AlamofireImage: 87408b652e0f5ae5fe364035f15aea8b9b24c77e
-  HysteriaPlayer: a7e1c74e2f41bc605ae974217f34c0af4b640a8a
+  HysteriaPlayer: 583c4cdfdd8e9016d1edffb3c1b945f8e1f1ecc5
   ObjectMapper: b1e9c7c8a9f6400b72690c80072c131504caa66f
-  SwiftPlayer: 7f6c38c33b1a1a19fb8be9a71e2239da4dacaad2
+  SwiftPlayer: 9ffe6450d5effe171359076d92a97235413f94f6
 
 COCOAPODS: 0.39.0

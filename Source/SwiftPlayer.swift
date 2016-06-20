@@ -38,9 +38,24 @@ extension SwiftPlayerQueueDelegate {
 /// Struct to access player actions 🎵
 public struct SwiftPlayer {
   
+  /// Set logs
+  public static func logs(active: Bool) {
+    HysteriaManager.sharedInstance.logs = active
+  }
+  
   /// Set delegate
   public static func delegate(delegate: SwiftPlayerDelegate) {
     HysteriaManager.sharedInstance.delegate = delegate
+  }
+  
+  /// Set ViewController
+  public static func controller(controller: UIViewController?) {
+    HysteriaManager.sharedInstance.controller = controller
+  }
+  
+  // Get ViewController
+  public static func playerController() -> UIViewController? {
+    return HysteriaManager.sharedInstance.controller
   }
   
   /// ▶️ Play music
@@ -130,6 +145,10 @@ public struct SwiftPlayer {
     return HysteriaManager.sharedInstance.playingItemDurationTime()
   }
   
+  /// 🔊 Player volume view
+  public static func volumeViewFrom(view: UIView) -> MPVolumeView {
+    return HysteriaManager.sharedInstance.volumeViewFrom(view)
+  }
   
   // MARK: QUEUE
  
@@ -161,11 +180,14 @@ public struct SwiftPlayer {
   
   /// Tracks without playing track in next queue
   public static func nextTracks() -> [PlayerTrack] {
-    if SwiftPlayer.trackAtIndex(SwiftPlayer.currentTrackIndex()).origin == TrackType.Next {
-      var pop = HysteriaManager.sharedInstance.queue.nextQueue
-      pop.removeAtIndex(0)
-      return pop
+    if let index = SwiftPlayer.currentTrackIndex() {
+      if SwiftPlayer.trackAtIndex(index).origin == TrackType.Next {
+        var pop = HysteriaManager.sharedInstance.queue.nextQueue
+        pop.removeAtIndex(0)
+        return pop
+      }
     }
+    
     
     return HysteriaManager.sharedInstance.queue.nextQueue
   }
@@ -175,8 +197,13 @@ public struct SwiftPlayer {
     return HysteriaManager.sharedInstance.queue.trackAtIndex(index)
   }
   
+  /// Current AVPlayerItem
+  public static func currentItem() -> AVPlayerItem {
+    return HysteriaManager.sharedInstance.currentItem()
+  }
+  
   /// Current index of playlist
-  public static func currentTrackIndex() -> Int {
+  public static func currentTrackIndex() -> Int? {
     return HysteriaManager.sharedInstance.currentIndex()
   }
   

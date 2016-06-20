@@ -17,15 +17,17 @@ class QueueTableViewCell: UITableViewCell {
   
   var track: PlayerTrack? {
     didSet {
-      trackName.text = track!.name
       
-      if let artist = track!.artist?.name {
-        if let album = track!.album?.name {
+      
+      trackName.text = track?.name
+      
+      if let artist = track?.artist?.name {
+        if let album = track?.album?.name {
           artistName.text = artist + " — " + album
         }
       }
       
-      if let image = track!.image {
+      if let image = track?.image {
         coverImage.af_setImageWithURL(NSURL(string: image)!)
       }
     }

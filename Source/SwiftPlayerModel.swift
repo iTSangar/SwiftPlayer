@@ -20,15 +20,29 @@ public struct PlayerTrack {
   public let album: Album?
   public let artist: Artist?
   
+  public var modelObjectSupport: AnyObject?
+  
   var origin: TrackType! = TrackType.Normal
   var position: Int?
   
   public struct Album {
-    public let name: String?
+    public var name: String?
+    
+    public init() { }
+    
+    public init(name: String?) {
+      self.name = name
+    }
   }
   
   public struct Artist {
-    public let name: String?
+    public var name: String?
+    
+    public init() { }
+    
+    public init(name: String?) {
+      self.name = name
+    }
   }
   
   public init(url: String, name: String? = nil, image: String? = nil, album: String? = nil, artist: String? = nil) {

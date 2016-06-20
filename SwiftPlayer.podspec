@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'SwiftPlayer'
-  s.version          = '0.3.2'
+  s.version          = '0.3.4'
   s.summary          = 'Swift stream music player, on top of HysteriaPlayer'
   s.description      = <<-DESC
 This CocoaPod provides the ability to use a stream player using swift language over an abstraction of HysteriaPlayer framework.
